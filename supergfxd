@@ -1,0 +1,31 @@
+#!/usr/bin/openrc-run
+# Copyright 1999-2023 Your Name or Organization
+
+description="Supergfx Daemon"
+
+# Service command and pidfile
+command="/usr/bin/supergfxd"
+pidfile="/run/supergfx/${RC_SVCNAME}.pid"
+command_background=true
+
+# Setting the environment
+export IS_SERVICE=1
+export RUST_LOG=debug
+
+# Dependencies
+depend() {
+    need dbus logger elogind
+    after modules
+    use display-manager 
+}
+
+start_pre() {
+    # Set SELinux context
+    checkpath -d -m 0755 $(dirname $pidfile)
+    checkpath -f -m 0644 $pidfile
+
+}
+
+# Handle restarts
+retry="${retry:-infinity}"
+retry_timeout="${retry_timeout:-1}"
